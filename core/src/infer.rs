@@ -1,6 +1,7 @@
 use crate::queue::{Entry, Metadata, NextBatch, Queue};
 use crate::tokenization::{EncodingInput, RawEncoding, Tokenization};
 use crate::TextEmbeddingsError;
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use text_embeddings_backend::{Backend, BackendError, Embedding, ModelType};
@@ -257,7 +258,8 @@ impl Infer {
                 permit,
             )
             .await?;
-
+        
+        tracing::info!("results: {results:#?}");
         let InferResult::PooledEmbedding(mut response) = results else {
             panic!("unexpected enum variant")
         };
@@ -573,9 +575,10 @@ async fn backend_task(backend: Backend, mut embed_receiver: mpsc::Receiver<NextB
                                 .remove(&i)
                                 .expect("embedding not found in results. This is a backend bug.")
                             {
-                                Embedding::Pooled(e) => {
+                                Embedding::Pooled(e, token_weights) => {
                                     InferResult::PooledEmbedding(PooledEmbeddingsInferResponse {
                                         results: e,
+                                        token_weights,
                                         metadata,
                                     })
                                 }
@@ -625,6 +628,7 @@ pub struct ClassificationInferResponse {
 #[derive(Debug)]
 pub struct PooledEmbeddingsInferResponse {
     pub results: Vec<f32>,
+    pub token_weights: HashMap<String, f32>,
     pub metadata: InferMetadata,
 }
 

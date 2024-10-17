@@ -235,6 +235,7 @@ pub fn load_tokenizer(model_root: &Path) -> Result<Tokenizer> {
 
 pub fn batch(encodings: Vec<Encoding>, pooled_indices: Vec<u32>, raw_indices: Vec<u32>) -> Batch {
     let mut input_ids = Vec::new();
+    let mut tokens = Vec::new();
     let mut token_type_ids = Vec::new();
     let mut position_ids = Vec::new();
     let mut cumulative_seq_lengths = Vec::with_capacity(encodings.len() + 1);
@@ -246,6 +247,7 @@ pub fn batch(encodings: Vec<Encoding>, pooled_indices: Vec<u32>, raw_indices: Ve
     for encoding in encodings.iter() {
         let encoding_length = encoding.len() as u32;
         input_ids.extend(encoding.get_ids().to_vec());
+        tokens.extend(encoding.get_tokens().to_vec());
         token_type_ids.extend(encoding.get_type_ids().to_vec());
         position_ids.extend(0..encoding_length);
         cumulative_length += encoding_length;
@@ -255,6 +257,7 @@ pub fn batch(encodings: Vec<Encoding>, pooled_indices: Vec<u32>, raw_indices: Ve
 
     Batch {
         input_ids,
+        tokens,
         token_type_ids,
         position_ids,
         cumulative_seq_lengths,

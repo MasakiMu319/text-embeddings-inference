@@ -120,6 +120,7 @@ fn queue_blocking_task(
                 let _span = span.entered();
 
                 let mut input_ids = Vec::with_capacity(max_batch_tokens);
+                let mut tokens = Vec::with_capacity(max_batch_tokens);
                 let mut token_type_ids = Vec::with_capacity(max_batch_tokens);
                 let mut position_ids = Vec::with_capacity(max_batch_tokens);
 
@@ -165,6 +166,7 @@ fn queue_blocking_task(
                     max_length = max(max_length, entry_tokens as u32);
 
                     input_ids.extend(entry.encoding.input_ids);
+                    tokens.extend(entry.encoding.tokens);
                     token_type_ids.extend(entry.encoding.token_type_ids);
                     position_ids.extend(entry.encoding.position_ids);
 
@@ -187,6 +189,7 @@ fn queue_blocking_task(
                         metadata,
                         Batch {
                             input_ids,
+                            tokens,
                             token_type_ids,
                             position_ids,
                             cumulative_seq_lengths: cu_seq_lengths,

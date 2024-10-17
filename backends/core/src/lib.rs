@@ -1,12 +1,13 @@
 #[cfg(feature = "clap")]
 use clap::ValueEnum;
 use nohash_hasher::IntMap;
-use std::fmt;
+use std::{collections::HashMap, fmt};
 use thiserror::Error;
 
 #[derive(Debug)]
 pub struct Batch {
     pub input_ids: Vec<u32>,
+    pub tokens: Vec<String>,
     pub token_type_ids: Vec<u32>,
     pub position_ids: Vec<u32>,
     pub cumulative_seq_lengths: Vec<u32>,
@@ -25,8 +26,9 @@ impl Batch {
     }
 }
 
+#[derive(Debug)]
 pub enum Embedding {
-    Pooled(Vec<f32>),
+    Pooled(Vec<f32>, HashMap<String, f32>),
     All(Vec<Vec<f32>>),
 }
 

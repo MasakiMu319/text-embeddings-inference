@@ -110,6 +110,7 @@ impl TextEmbeddingsService {
         Ok((
             EmbedResponse {
                 embeddings: response.results,
+                token_weights: response.token_weights,
                 metadata: Some(grpc::Metadata::from(&response_metadata)),
             },
             response_metadata,

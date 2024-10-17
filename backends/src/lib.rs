@@ -80,6 +80,7 @@ impl Backend {
         max_batch_requests: Option<usize>,
     ) -> Result<(), BackendError> {
         let mut input_ids = Vec::with_capacity(max_batch_tokens);
+        let mut tokens = Vec::with_capacity(max_batch_tokens);
         let mut token_type_ids = Vec::with_capacity(max_batch_tokens);
         let mut position_ids = Vec::with_capacity(max_batch_tokens);
 
@@ -97,6 +98,7 @@ impl Backend {
             max_length = max(max_length, request_length as u32);
 
             input_ids.extend(vec![0; request_length]);
+            tokens.extend(vec![String::from(""); request_length]);
             token_type_ids.extend(vec![0; request_length]);
             position_ids.extend((0..request_length as u32).collect::<Vec<u32>>());
 
@@ -114,6 +116,7 @@ impl Backend {
 
         let batch = Batch {
             input_ids,
+            tokens,
             token_type_ids,
             position_ids,
             cumulative_seq_lengths,
@@ -148,6 +151,7 @@ impl Backend {
 
             let batch = Batch {
                 input_ids: vec![0],
+                tokens: vec![String::from("")],
                 token_type_ids: vec![0],
                 position_ids: vec![0],
                 cumulative_seq_lengths: vec![0, 1],
