@@ -84,7 +84,8 @@ message EmbedRequest {
 
 message EmbedResponse {
     repeated float embeddings = 1;
-    Metadata metadata = 2;
+    map<string, float> token_weights = 2;
+    Metadata metadata = 3;
 }
 
 message EmbedSparseRequest {

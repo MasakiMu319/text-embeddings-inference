@@ -390,6 +390,7 @@ fn encode_input(
     histogram.record(seq_len as f64);
     Ok(ValidEncoding {
         input_ids: encoding.get_ids().to_vec(),
+        tokens: encoding.get_tokens().to_vec(),
         token_type_ids: encoding.get_type_ids().to_vec(),
         position_ids: (position_offset as u32..(seq_len + position_offset) as u32)
             .collect::<Vec<_>>(),
@@ -399,6 +400,7 @@ fn encode_input(
 #[derive(Debug)]
 pub struct ValidEncoding {
     pub input_ids: Vec<u32>,
+    pub tokens: Vec<String>,
     pub token_type_ids: Vec<u32>,
     pub position_ids: Vec<u32>,
 }
