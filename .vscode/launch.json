@@ -425,7 +425,7 @@
             },
             "args": [
                 "--model-id",
-                "save_models/embedding-model",
+                "save_models/gte-multilingual-base",
                 "--tokenization-workers",
                 "16",
                 "--dtype",
