@@ -1,0 +1,11 @@
+total = 1024
+concurrency = 8
+connections = 1
+proto = "proto/tei.proto"
+call = "tei.v1.Embed/Embed"
+host = "0.0.0.0:3000"
+insecure = true
+
+[data]
+inputs = "北京你好"
+normalize = true
