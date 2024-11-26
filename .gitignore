@@ -1,3 +1,4 @@
 .idea
 target
-save_models/
+save_models/*
+save_models/embedding-model/
