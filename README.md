@@ -9,6 +9,8 @@
   <img alt="Swagger API documentation" src="https://img.shields.io/badge/API-Swagger-informational">
 </a>
 
+> The upstream don't support return token weights during embedding, so this fork repo will supply it with Embed grpc service(Actually it only support run in onnx model ).
+
 A blazing fast inference solution for text embeddings models.
 
 Benchmark for [BAAI/bge-base-en-v1.5](https://huggingface.co/BAAI/bge-base-en-v1.5) on an Nvidia A10 with a sequence

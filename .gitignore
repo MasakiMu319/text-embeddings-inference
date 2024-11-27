@@ -3,3 +3,4 @@ target
 debug.json
 save_models/*
 save_models/embedding-model/
+gte-mutlilingual-base-onnx/

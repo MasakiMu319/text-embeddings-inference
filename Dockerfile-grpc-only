@@ -15,6 +15,7 @@ COPY core core
 COPY router router
 COPY Cargo.toml ./
 COPY Cargo.lock ./
+COPY gte-multilingual-base-onnx /data/gte-multilingual-base-onnx
 
 RUN cargo chef prepare  --recipe-path recipe.json
 
@@ -50,7 +51,6 @@ COPY core core
 COPY router router
 COPY Cargo.toml ./
 COPY Cargo.lock ./
-COPY gte-mutlilingual-base-onnx /data
 
 FROM builder AS grpc-builder
 
@@ -95,7 +95,7 @@ COPY --from=builder /usr/src/libfakeintel.so /usr/local/libfakeintel.so
 FROM base AS grpc
 
 COPY --from=grpc-builder /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router
-COPY --from=grpc-builder /data/gte-mutlilingual-base-onnx /data/gte-mutlilingual-base
+COPY --from=planner /data/gte-multilingual-base-onnx /data/gte-multilingual-base-onnx
 
 ENTRYPOINT ["text-embeddings-router"]
 CMD ["--json-output"]
