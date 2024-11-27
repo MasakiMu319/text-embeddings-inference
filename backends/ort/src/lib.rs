@@ -195,7 +195,7 @@ impl Backend for OrtBackend {
             }
         }
 
-        tracing::info!("map token weights: {map_token_weights:#?}");
+        tracing::debug!("map token weights: {map_token_weights:#?}");
 
         let outputs = outputs
             .get("last_hidden_state")

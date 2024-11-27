@@ -50,6 +50,7 @@ COPY core core
 COPY router router
 COPY Cargo.toml ./
 COPY Cargo.lock ./
+COPY gte-mutlilingual-base-onnx /data
 
 FROM builder AS grpc-builder
 

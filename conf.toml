@@ -1,9 +1,9 @@
 total = 1024
-concurrency = 8
+concurrency = 4
 connections = 1
 proto = "proto/tei.proto"
 call = "tei.v1.Embed/Embed"
-host = "0.0.0.0:3000"
+host = "119.29.85.40:50050"
 insecure = true
 
 [data]

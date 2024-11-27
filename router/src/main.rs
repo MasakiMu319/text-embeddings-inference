@@ -17,7 +17,7 @@ struct Args {
     /// `BAAI/bge-large-en-v1.5`.
     /// Or it can be a local directory containing the necessary files
     /// as saved by `save_pretrained(...)` methods of transformers
-    #[clap(default_value = "BAAI/bge-large-en-v1.5", long, env)]
+    #[clap(default_value = "/data/gte-mutlilingual-base-onnx", long, env)]
     #[redact(partial)]
     model_id: String,
 
