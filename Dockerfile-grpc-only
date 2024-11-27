@@ -95,6 +95,7 @@ COPY --from=builder /usr/src/libfakeintel.so /usr/local/libfakeintel.so
 FROM base AS grpc
 
 COPY --from=grpc-builder /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router
+COPY --from=grpc-builder /data/gte-mutlilingual-base-onnx /data/gte-mutlilingual-base
 
 ENTRYPOINT ["text-embeddings-router"]
 CMD ["--json-output"]
