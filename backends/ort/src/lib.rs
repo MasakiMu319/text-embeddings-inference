@@ -8,6 +8,8 @@ use text_embeddings_backend_core::{
     Backend, BackendError, Batch, Embedding, Embeddings, ModelType, Pool, Predictions,
 };
 
+const UNUSED_TOKENS: &[&str; 5] = &["▁", "<s>", "</s>", "unk", "pad"];
+
 pub struct OrtBackend {
     session: Session,
     pool: Pool,
@@ -146,7 +148,7 @@ impl Backend for OrtBackend {
         };
 
         // Create ndarrays
-        let tokens = ndarray::Array2::from_shape_vec((batch_size, max_length), input_ids).e()?;
+        let input_ids = ndarray::Array2::from_shape_vec((batch_size, max_length), input_ids).e()?;
         let attention_mask =
             ndarray::Array2::from_shape_vec((batch_size, max_length), attention_mask).e()?;
         let input_lengths = ndarray::Array1::from_vec(input_lengths);
@@ -157,10 +159,12 @@ impl Backend for OrtBackend {
                 // Add type ids to inputs
                 let type_ids =
                     ndarray::Array2::from_shape_vec((batch_size, max_length), type_ids).e()?;
-                ort::inputs!["input_ids" => tokens, "attention_mask" => attention_mask.clone(), type_id_name => type_ids].e()?
+                ort::inputs!["input_ids" => input_ids, "attention_mask" => attention_mask.clone(), type_id_name => type_ids].e()?
             }
-            None => ort::inputs!["input_ids" => tokens, "attention_mask" => attention_mask.clone()]
-                .e()?,
+            None => {
+                ort::inputs!["input_ids" => input_ids, "attention_mask" => attention_mask.clone()]
+                    .e()?
+            }
         };
 
         // Run model
@@ -168,35 +172,26 @@ impl Backend for OrtBackend {
 
         let logits = outputs
             .get("logits")
-            .unwrap()
-            .try_extract_tensor::<f32>()
-            .e()
-            .to_owned()
+            .and_then(|logits_value| logits_value.try_extract_tensor::<f32>().ok())
+            .ok_or_else(|| anyhow::anyhow!("Failed to extract logits tensor"))
             .unwrap();
-        // tracing::info!("logits: {logits:#?}");
+
         let tokens = batch.tokens;
-        // tracing::info!("tokens: {tokens:#?}");
         let token_weights = logits.mapv(|x| x.max(0.0));
         let token_weights = token_weights.index_axis(ndarray::Axis(token_weights.ndim() - 1), 0);
-        let unused_tokens = [
-            String::from("▁"),
-            String::from("<s>"),
-            String::from("</s>"),
-            String::from("unk"),
-            String::from("pad"),
-        ];
         let mut map_token_weights: HashMap<String, f32> = HashMap::new();
-        for (weights, token) in token_weights.iter().zip(tokens.iter()) {
-            if !unused_tokens.contains(token) && *weights > 0.0 {
+        for (weight, token) in token_weights.iter().zip(tokens.iter()) {
+            if !UNUSED_TOKENS.contains(&token.as_str()) && *weight > 0.0 {
                 map_token_weights
                     .entry(token.clone())
-                    .and_modify(|e| *e = f32::max(*e, *weights))
-                    .or_insert(*weights);
+                    .and_modify(|e| *e = f32::max(*e, *weight))
+                    .or_insert(*weight);
             }
         }
 
         tracing::debug!("map token weights: {map_token_weights:#?}");
 
+        // Get last_hidden_state ndarray
         let outputs = outputs
             .get("last_hidden_state")
             .or(outputs.get("token_embeddings"))
@@ -269,7 +264,7 @@ impl Backend for OrtBackend {
             {
                 embeddings.insert(
                     i as usize,
-                    Embedding::Pooled(e.to_vec(), map_token_weights.clone()),
+                    Embedding::Pooled(e.to_vec(), map_token_weights.to_owned()),
                 );
             }
         };
@@ -321,7 +316,7 @@ impl Backend for OrtBackend {
                 cumulative_length += length;
             }
         }
-        // tracing::info!("embeddings: {embeddings:#?}");
+
         Ok(embeddings)
     }
 

@@ -422,7 +422,10 @@ impl Backend for CandleBackend {
         let mut embeddings =
             HashMap::with_capacity_and_hasher(batch_size, BuildNoHashHasher::default());
         for (i, e) in pooled_indices.into_iter().zip(pooled_embeddings) {
-            embeddings.insert(i as usize, Embedding::Pooled(e, HashMap::new()));
+            embeddings.insert(
+                i as usize,
+                Embedding::Pooled(e, HashMap::<String, f32>::new()),
+            );
         }
 
         let mut cumulative_length = 0;

@@ -26,7 +26,6 @@ impl Batch {
     }
 }
 
-#[derive(Debug)]
 pub enum Embedding {
     Pooled(Vec<f32>, HashMap<String, f32>),
     All(Vec<Vec<f32>>),

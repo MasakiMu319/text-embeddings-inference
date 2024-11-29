@@ -259,7 +259,6 @@ impl Infer {
             )
             .await?;
 
-        // tracing::info!("results: {results:#?}");
         let InferResult::PooledEmbedding(mut response) = results else {
             panic!("unexpected enum variant")
         };
