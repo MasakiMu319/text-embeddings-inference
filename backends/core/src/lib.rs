@@ -1,7 +1,7 @@
 #[cfg(feature = "clap")]
 use clap::ValueEnum;
 use nohash_hasher::IntMap;
-use std::{collections::HashMap, fmt};
+use std::fmt;
 use thiserror::Error;
 
 #[derive(Debug)]
@@ -27,7 +27,7 @@ impl Batch {
 }
 
 pub enum Embedding {
-    Pooled(Vec<f32>, HashMap<String, f32>),
+    Pooled(Vec<f32>, Vec<(String, f32)>),
     All(Vec<Vec<f32>>),
 }
 

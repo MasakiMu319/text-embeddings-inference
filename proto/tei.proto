@@ -82,9 +82,14 @@ message EmbedRequest {
     optional string prompt_name = 5;
 }
 
+message KeyValue {
+    string key = 1;
+    float value = 2;
+}
+
 message EmbedResponse {
     repeated float embeddings = 1;
-    map<string, float> token_weights = 2;
+    repeated KeyValue token_weights = 2;
     Metadata metadata = 3;
 }
 

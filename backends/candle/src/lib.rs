@@ -433,7 +433,7 @@ impl Backend for CandleBackend {
         for (i, e) in pooled_indices.into_iter().zip(pooled_embeddings) {
             embeddings.insert(
                 i as usize,
-                Embedding::Pooled(e, HashMap::<String, f32>::new()),
+                Embedding::Pooled(e, Vec::<(String, f32)>::new()),
             );
         }
 

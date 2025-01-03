@@ -1,7 +1,6 @@
 use crate::queue::{Entry, Metadata, NextBatch, Queue};
 use crate::tokenization::{EncodingInput, RawEncoding, Tokenization};
 use crate::TextEmbeddingsError;
-use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use text_embeddings_backend::{Backend, BackendError, Embedding, ModelType};
@@ -333,7 +332,9 @@ impl Infer {
                 tracing::error!("{err}");
                 err
             })?;
-
+        
+        tracing::info!("encoding: {:?}", encoding);
+        
         // MPSC channel to communicate with the background batching task
         let (response_tx, response_rx) = oneshot::channel();
 
@@ -627,7 +628,7 @@ pub struct ClassificationInferResponse {
 #[derive(Debug)]
 pub struct PooledEmbeddingsInferResponse {
     pub results: Vec<f32>,
-    pub token_weights: HashMap<String, f32>,
+    pub token_weights: Vec<(String, f32)>,
     pub metadata: InferMetadata,
 }
 

@@ -177,19 +177,18 @@ impl Backend for OrtBackend {
             .unwrap();
 
         let tokens = batch.tokens;
+        tracing::info!("tokens: {:#?}", tokens);
         let token_weights = logits.mapv(|x| x.max(0.0));
         let token_weights = token_weights.index_axis(ndarray::Axis(token_weights.ndim() - 1), 0);
-        let mut map_token_weights: HashMap<String, f32> = HashMap::new();
+        tracing::info!("token weights: {:#?}", token_weights);
+        let mut token_weight_vec: Vec<(String, f32)> = Vec::new();
         for (weight, token) in token_weights.iter().zip(tokens.iter()) {
             if !UNUSED_TOKENS.contains(&token.as_str()) && *weight > 0.0 {
-                map_token_weights
-                    .entry(token.clone())
-                    .and_modify(|e| *e = f32::max(*e, *weight))
-                    .or_insert(*weight);
+                token_weight_vec.push((token.clone(), *weight));
             }
         }
 
-        tracing::debug!("map token weights: {map_token_weights:#?}");
+        tracing::info!("sparse token weights: {:#?}", token_weight_vec);
 
         // Get last_hidden_state ndarray
         let outputs = outputs
@@ -264,7 +263,7 @@ impl Backend for OrtBackend {
             {
                 embeddings.insert(
                     i as usize,
-                    Embedding::Pooled(e.to_vec(), map_token_weights.to_owned()),
+                    Embedding::Pooled(e.to_vec(), token_weight_vec.clone()),
                 );
             }
         };

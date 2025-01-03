@@ -1,8 +1,4 @@
-use crate::grpc::pb::tei::v1::{
-    EmbedAllRequest, EmbedAllResponse, EmbedSparseRequest, EmbedSparseResponse, EncodeRequest,
-    EncodeResponse, PredictPairRequest, RerankStreamRequest, SimpleToken, SparseValue,
-    TokenEmbedding, TruncationDirection,
-};
+use crate::grpc::pb::tei::v1::{EmbedAllRequest, EmbedAllResponse, EmbedSparseRequest, EmbedSparseResponse, EncodeRequest, EncodeResponse, KeyValue, PredictPairRequest, RerankStreamRequest, SimpleToken, SparseValue, TokenEmbedding, TruncationDirection};
 use crate::grpc::{
     DecodeRequest, DecodeResponse, EmbedRequest, EmbedResponse, InfoRequest, InfoResponse,
     PredictRequest, PredictResponse, Prediction, Rank, RerankRequest, RerankResponse,
@@ -106,11 +102,19 @@ impl TextEmbeddingsService {
         response_metadata.record_metrics();
 
         tracing::info!("Success");
+        
+        let mut token_weights: Vec<KeyValue> = Vec::new(); 
+        for (key, value) in response.token_weights.iter() {
+            token_weights.push(KeyValue {
+                key: key.clone(),
+                value: *value,
+            });
+        }
 
         Ok((
             EmbedResponse {
                 embeddings: response.results,
-                token_weights: response.token_weights,
+                token_weights: token_weights,
                 metadata: Some(grpc::Metadata::from(&response_metadata)),
             },
             response_metadata,
