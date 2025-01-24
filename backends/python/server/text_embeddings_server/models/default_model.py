@@ -8,7 +8,7 @@ from opentelemetry import trace
 from sentence_transformers.models import Pooling
 
 from text_embeddings_server.models import Model
-from text_embeddings_server.models.types import PaddedBatch, Embedding
+from text_embeddings_server.models.types import PaddedBatch, Embedding, Score
 
 tracer = trace.get_tracer(__name__)
 
@@ -43,7 +43,6 @@ class DefaultModel(Model):
             kwargs["token_type_ids"] = batch.token_type_ids
         if self.has_position_ids:
             kwargs["position_ids"] = batch.position_ids
-
         output = self.model(**kwargs)
 
         pooling_features = {
@@ -60,3 +59,7 @@ class DefaultModel(Model):
             )
             for i in range(len(batch))
         ]
+
+    @tracer.start_as_current_span("predict")
+    def predict(self, batch: PaddedBatch) -> List[Score]:
+        pass
